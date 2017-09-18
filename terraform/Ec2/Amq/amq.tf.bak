@@ -1,0 +1,64 @@
+
+provider "aws" {
+  region = "${var.aws_region}"
+  access_key = "${var.access_key}"
+  secret_key = "${var.secret_key}"
+}
+
+# Creating VPC
+
+
+resource "aws_vpc" "vpc_flex" {
+  cidr_block = "${var.vpc_cidr}"
+  enable_dns_support = true
+  enable_dns_hostnames = true
+  tags = {
+    Name = "Flex-VPC"
+  }
+}
+
+#module vpc {
+ # source = "vpc"
+#}
+# Creating Public Subnet
+
+
+resource "aws_subnet" "public_subnet_us_east_1a" {
+  vpc_id                  = "${aws_vpc.vpc_flex.id}"
+  cidr_block              = "${var.public_cidr}"
+  map_public_ip_on_launch = true
+  availability_zone = "us-east-1a"
+  tags = {
+  	Name =  "Public Subnet"
+  }
+}
+
+
+
+# Create Private Subnet 
+
+resource "aws_subnet" "private_1_subnet_us_east_1a" {
+  vpc_id                  = "${aws_vpc.vpc_flex.id}"
+  cidr_block              = "${var.private_cidr}"
+  availability_zone = "us-east-1a"
+  tags = {
+  	Name =  "private Subnet "
+  }
+}
+
+
+resource "aws_instance" "AMQ-1" {
+    ami = "${var.amq_inst["ami_id"]}"
+	count = "${var.amq_inst["instance_count"]}"
+    availability_zone = "us-east-1a"
+    instance_type = "${var.amq_inst["instance_type"]}"
+    key_name = "${var.key_name}"
+    vpc_security_group_ids = ["${aws_security_group.private.id}"]
+    subnet_id = "${aws_subnet.private_1_subnet_us_east_1a.id}"
+    associate_public_ip_address = true
+    source_dest_check = false
+
+    tags {
+		Name = "ActiveMQ-${(count.index)}"
+    }
+}

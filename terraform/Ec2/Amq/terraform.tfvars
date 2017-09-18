@@ -1,5 +1,4 @@
 aws_region = "us-east-1"
 access_key = ""
 secret_key = ""
-key_path = ""
-key_name = "Flex_key"
+key_name = ""

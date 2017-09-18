@@ -16,7 +16,9 @@ resource "aws_vpc" "vpc_flex" {
   }
 }
 
-
+#module vpc {
+ # source = "vpc"
+#}
 # Creating Public Subnet
 
 
